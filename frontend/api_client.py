@@ -3,10 +3,7 @@ import requests
 BASE_URL = "http://127.0.0.1:8000"
 
 
-def analyze_resume(
-    file,
-    jd_text
-):
+def analyze_resume(file, jd_text):
 
     files = {
         "file": file
@@ -21,5 +18,14 @@ def analyze_resume(
         files=files,
         data=data
     )
+
+    print("STATUS:", response.status_code)
+    print("RAW RESPONSE:")
+    print(response.text)
+
+    if response.status_code != 200:
+        raise Exception(
+            f"Backend Error:\n{response.text}"
+        )
 
     return response.json()

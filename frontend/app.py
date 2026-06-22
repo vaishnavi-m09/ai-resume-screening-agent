@@ -3,10 +3,8 @@ import pandas as pd
 
 from api_client import analyze_resume
 
-
 st.set_page_config(
     page_title="AI Resume Screening Agent",
-    page_icon="📄",
     layout="wide"
 )
 
@@ -47,10 +45,10 @@ if st.button("Analyze Resume"):
 
         score = result["match_score"]
 
-        if score >= 80:
+        if score >= 70:
             recommendation = "✅ Strong Fit"
 
-        elif score >= 60:
+        elif score >= 50:
             recommendation = "🟡 Moderate Fit"
 
         else:
@@ -88,6 +86,69 @@ if st.button("Analyze Resume"):
 
         st.subheader("Recommendation")
         st.info(recommendation)
+
+        st.divider()
+
+        # ========================
+        # Recruiter Feedback
+        # ========================
+
+        feedback = result["feedback"]
+
+        st.subheader("Recruiter Feedback")
+
+        st.metric(
+            "Skill Coverage",
+            f"{feedback['skill_coverage']}%"
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric(
+                "Matched Skills",
+                feedback["matched_skills"]
+            )
+
+        with col2:
+            st.metric(
+                "Missing Skills",
+                feedback["missing_skills"]
+            )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown(
+                f"**Assessment:** "
+                f"{feedback['overall_assessment']}"
+            )
+
+        with col2:
+            st.markdown(
+                f"**Recommendation:** "
+                f"{feedback['recommendation']}"
+            )
+
+        st.divider()
+
+        # ========================
+        # Strengths
+        # ========================
+
+        st.subheader("Strengths")
+
+        for strength in feedback["strengths"]:
+            st.success(strength)
+
+        # ========================
+        # Areas of Concern
+        # ========================
+
+        st.subheader("Areas of Concern")
+
+        for weakness in feedback["weaknesses"]:
+            st.warning(weakness)
 
         st.divider()
 
