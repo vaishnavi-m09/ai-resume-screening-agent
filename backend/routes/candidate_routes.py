@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
 from backend.schemas import (
-    AnalyzeRequest
+    AnalyzeRequest,
+    AnalyzeResponse
 )
 
 from backend.services.recruitment_service import (
@@ -13,7 +14,7 @@ router = APIRouter()
 service = RecruitmentService()
 
 
-@router.post("/analyze")
+@router.post("/analyze", response_model=AnalyzeResponse)
 def analyze_candidate(
     request: AnalyzeRequest
 ):

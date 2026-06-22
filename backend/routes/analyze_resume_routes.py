@@ -2,11 +2,13 @@ from fastapi import (
     APIRouter,
     UploadFile,
     File,
-    Form
+    Form,
+    HTTPException
 )
 
 import os
 import shutil
+import traceback
 
 from backend.agents.parser_agent import (
     ParserAgent
@@ -15,6 +17,8 @@ from backend.agents.parser_agent import (
 from backend.services.recruitment_service import (
     RecruitmentService
 )
+
+from backend.schemas import AnalyzeResponse
 
 router = APIRouter()
 
@@ -30,34 +34,57 @@ os.makedirs(
 )
 
 
-@router.post("/analyze_resume")
+@router.post("/analyze_resume", response_model=AnalyzeResponse)
 async def analyze_resume(
     file: UploadFile = File(...),
     jd_text: str = Form(...)
 ):
 
-    file_path = os.path.join(
-        UPLOAD_DIR,
-        file.filename
-    )
+    try:
 
-    with open(
-        file_path,
-        "wb"
-    ) as buffer:
-
-        shutil.copyfileobj(
-            file.file,
-            buffer
+        file_path = os.path.join(
+            UPLOAD_DIR,
+            file.filename or "resume.pdf"
         )
 
-    resume_text = parser_agent.parse(
-        file_path
-    )
+        with open(
+            file_path,
+            "wb"
+        ) as buffer:
 
-    result = service.analyze_resume(
-        resume_text,
-        jd_text
-    )
+            shutil.copyfileobj(
+                file.file,
+                buffer
+            )
 
-    return result
+        print("FILE SAVED")
+
+        resume_text = parser_agent.parse(
+            file_path
+        )
+
+        print("RESUME PARSED")
+        print(type(resume_text))
+
+        result = service.analyze_resume(
+            resume_text,
+            jd_text
+        )
+
+        print("ANALYSIS COMPLETE")
+
+        return result
+
+    except HTTPException as he:
+        raise he
+
+    except Exception as e:
+
+        print("\n========== ERROR ==========")
+        traceback.print_exc()
+        print("===========================\n")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Analysis failed: {str(e)}"
+        )

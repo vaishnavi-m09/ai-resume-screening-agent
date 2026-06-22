@@ -25,7 +25,7 @@ async def upload_resume(
 
     file_path = os.path.join(
         UPLOAD_DIR,
-        file.filename
+        file.filename or "resume.pdf"
     )
 
     with open(

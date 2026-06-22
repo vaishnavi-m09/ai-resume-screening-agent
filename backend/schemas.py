@@ -13,8 +13,12 @@ class AnalyzeResponse(BaseModel):
 
     match_score: float
 
+    recommendation: str
+
     skill_gaps: list
 
     explanation: dict
+
+    feedback: dict
 
     interview_questions: list

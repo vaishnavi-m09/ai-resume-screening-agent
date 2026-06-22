@@ -1,3 +1,4 @@
+import os
 from backend.utils.pdf_utils import (
     extract_pdf_text
 )
@@ -14,12 +15,18 @@ class ParserAgent:
         file_path
     ):
 
-        if file_path.endswith(".pdf"):
-            return extract_pdf_text(file_path)
+        if not os.path.exists(file_path):
+            return ""
 
-        elif file_path.endswith(".docx"):
-            return extract_docx_text(file_path)
+        try:
+            if file_path.endswith(".pdf"):
+                return extract_pdf_text(file_path)
 
-        raise ValueError(
-            "Unsupported file format"
-        )
+            elif file_path.endswith(".docx"):
+                return extract_docx_text(file_path)
+
+            return ""
+
+        except Exception as e:
+            print(f"Error parsing {file_path}: {e}")
+            return ""
